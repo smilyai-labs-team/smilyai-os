@@ -1,0 +1,11 @@
+[Unit]
+Description=SmilyAI graphical shell
+Wants=smilyai-ui.service
+After=smilyai-ui.service
+PartOf=graphical-session.target
+StartLimitIntervalSec=0
+
+[Service]
+ExecStart=/usr/local/bin/smilyai-shell
+Restart=on-failure
+RestartSec=3

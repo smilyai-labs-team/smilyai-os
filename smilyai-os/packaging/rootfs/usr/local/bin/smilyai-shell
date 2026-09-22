@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+url=http://127.0.0.1:47810/
+profile="${XDG_STATE_HOME:-$HOME/.local/state}/smilyai-os/chromium"
+mkdir -p "$profile"
+chmod 700 "$profile"
+# Static UI readiness only; NEVER wait for AI, network, shader, or microphone.
+count=0
+while ! curl -fsS --max-time 0.3 "$url" >/dev/null 2>&1; do
+    count=$((count+1))
+    if [ "$count" -ge 10 ]; then
+        echo "SmilyAI UI unavailable; native recovery: Super+Return, Super+E, Super+R" >&2
+        exit 1
+    fi
+    sleep 0.1
+done
+for browser in chromium chromium-browser; do
+    if command -v "$browser" >/dev/null 2>&1; then
+        exec "$browser" --app="$url" --class=smilyai-shell --start-maximized \
+          --no-first-run --disable-session-crashed-bubble --disable-features=Translate \
+          --ozone-platform=auto --user-data-dir="$profile"
+    fi
+done
+echo "Chromium is missing; use the native recovery shortcuts." >&2
+exit 1
